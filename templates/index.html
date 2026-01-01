@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RAG Document System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -27,22 +28,33 @@
             --border: #334155;
         }
 
+        [data-theme="light"] {
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-hover: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --border: #e2e8f0;
+        }
+
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', 'Roboto', sans-serif;
             background: var(--bg-main);
             color: var(--text-primary);
             line-height: 1.6;
             min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .navbar {
             background: var(--bg-card);
             border-bottom: 1px solid var(--border);
-            padding: 1rem 2rem;
+            padding: clamp(0.75rem, 2vw, 1rem) clamp(1rem, 4vw, 2rem);
             position: sticky;
             top: 0;
             z-index: 100;
             backdrop-filter: blur(10px);
+            transition: background-color 0.3s ease;
         }
 
         .navbar-content {
@@ -54,12 +66,12 @@
         }
 
         .logo {
-            font-size: 1.5rem;
+            font-size: clamp(1.125rem, 2vw, 1.5rem);
             font-weight: 700;
             color: var(--text-primary);
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: clamp(0.5rem, 1vw, 0.75rem);
         }
 
         .logo-icon {
@@ -70,26 +82,59 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.25rem;
+            color: white;
+            font-size: 18px;
+        }
+
+        .theme-toggle {
+            background: var(--bg-main);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            width: 56px;
+            height: 32px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            padding: 0 4px;
+        }
+
+        .theme-toggle-slider {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        [data-theme="light"] .theme-toggle-slider {
+            transform: translateX(24px);
         }
 
         .container {
             max-width: 1600px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: clamp(1rem, 3vw, 2rem);
             display: grid;
             grid-template-columns: 320px 1fr;
-            gap: 2rem;
+            gap: clamp(1rem, 2vw, 2rem);
         }
 
         .sidebar {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 1.5rem;
+            padding: clamp(1rem, 2vw, 1.5rem);
             height: fit-content;
             position: sticky;
             top: 90px;
+            transition: background-color 0.3s ease;
         }
 
         .sidebar-header {
@@ -102,7 +147,7 @@
         }
 
         .sidebar-header h2 {
-            font-size: 1rem;
+            font-size: clamp(0.875rem, 1.5vw, 1rem);
             font-weight: 600;
             color: var(--text-primary);
             text-transform: uppercase;
@@ -117,11 +162,11 @@
         }
 
         .file-item {
-            padding: 0.875rem;
+            padding: clamp(0.625rem, 1.5vw, 0.875rem);
             background: var(--bg-main);
             border: 1px solid var(--border);
             border-radius: 8px;
-            font-size: 0.875rem;
+            font-size: clamp(0.8125rem, 1.2vw, 0.875rem);
             color: var(--text-secondary);
             display: flex;
             align-items: center;
@@ -145,21 +190,22 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
             flex-shrink: 0;
+            color: var(--primary);
         }
 
         .main-content {
             display: flex;
             flex-direction: column;
-            gap: 2rem;
+            gap: clamp(1rem, 2vw, 2rem);
         }
 
         .card {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 2rem;
+            padding: clamp(1.25rem, 3vw, 2rem);
+            transition: background-color 0.3s ease;
         }
 
         .card-header {
@@ -170,7 +216,7 @@
         }
 
         .card-header h2 {
-            font-size: 1.25rem;
+            font-size: clamp(1rem, 2vw, 1.25rem);
             font-weight: 600;
             color: var(--text-primary);
         }
@@ -183,13 +229,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.25rem;
+            color: white;
+            font-size: 20px;
         }
 
         .upload-zone {
             border: 2px dashed var(--border);
             border-radius: 10px;
-            padding: 3rem 2rem;
+            padding: clamp(2rem, 4vw, 3rem) clamp(1rem, 2vw, 2rem);
             text-align: center;
             background: var(--bg-main);
             transition: all 0.3s;
@@ -222,18 +269,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
+            color: var(--primary);
+            font-size: 32px;
         }
 
         .upload-text h3 {
-            font-size: 1.125rem;
+            font-size: clamp(0.9375rem, 1.8vw, 1.125rem);
             font-weight: 600;
             color: var(--text-primary);
             margin-bottom: 0.5rem;
         }
 
         .upload-text p {
-            font-size: 0.875rem;
+            font-size: clamp(0.8125rem, 1.2vw, 0.875rem);
             color: var(--text-secondary);
         }
 
@@ -242,9 +290,9 @@
         }
 
         .btn {
-            padding: 0.75rem 1.5rem;
+            padding: clamp(0.625rem, 1.5vw, 0.75rem) clamp(1rem, 2vw, 1.5rem);
             border-radius: 8px;
-            font-size: 0.875rem;
+            font-size: clamp(0.8125rem, 1.2vw, 0.875rem);
             font-weight: 600;
             border: none;
             cursor: pointer;
@@ -261,6 +309,7 @@
 
         .btn-primary:hover {
             background: var(--primary-dark);
+            transform: translateY(-1px);
         }
 
         .btn-secondary {
@@ -281,7 +330,7 @@
             border: 1px solid var(--border);
             border-radius: 8px;
             color: var(--text-primary);
-            font-size: 0.9375rem;
+            font-size: clamp(0.875rem, 1.4vw, 0.9375rem);
             font-family: inherit;
             resize: vertical;
             transition: all 0.2s;
@@ -302,17 +351,19 @@
             justify-content: space-between;
             align-items: center;
             margin-top: 1rem;
+            flex-wrap: wrap;
+            gap: 0.75rem;
         }
 
         .char-count {
-            font-size: 0.8125rem;
+            font-size: clamp(0.75rem, 1.2vw, 0.8125rem);
             color: var(--text-secondary);
         }
 
         .status {
-            padding: 0.875rem 1rem;
+            padding: clamp(0.625rem, 1.5vw, 0.875rem) 1rem;
             border-radius: 8px;
-            font-size: 0.875rem;
+            font-size: clamp(0.8125rem, 1.2vw, 0.875rem);
             margin-top: 1rem;
             display: none;
             align-items: center;
@@ -371,10 +422,12 @@
             margin-bottom: 1.25rem;
             padding-bottom: 1rem;
             border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 0.75rem;
         }
 
         .answer-header h3 {
-            font-size: 1.125rem;
+            font-size: clamp(0.9375rem, 1.8vw, 1.125rem);
             font-weight: 600;
             color: var(--text-primary);
         }
@@ -382,7 +435,7 @@
         .answer-text {
             color: var(--text-secondary);
             line-height: 1.8;
-            font-size: 0.9375rem;
+            font-size: clamp(0.875rem, 1.4vw, 0.9375rem);
             margin-bottom: 1.25rem;
         }
 
@@ -394,29 +447,30 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
+            flex-wrap: wrap;
         }
 
         .sources-box strong {
             color: var(--text-primary);
-            font-size: 0.8125rem;
+            font-size: clamp(0.75rem, 1.2vw, 0.8125rem);
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
 
         .sources-list {
             color: var(--text-secondary);
-            font-size: 0.875rem;
+            font-size: clamp(0.8125rem, 1.2vw, 0.875rem);
         }
 
         .empty-state {
             text-align: center;
             padding: 2rem 1rem;
             color: var(--text-secondary);
-            font-size: 0.875rem;
+            font-size: clamp(0.8125rem, 1.2vw, 0.875rem);
         }
 
         .spinner {
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(128, 128, 128, 0.2);
             border-top: 2px solid var(--primary);
             border-radius: 50%;
             width: 16px;
@@ -466,15 +520,23 @@
     <nav class="navbar">
         <div class="navbar-content">
             <div class="logo">
-                <div class="logo-icon">⚡</div>
+                <div class="logo-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
                 <span>RAG Document System</span>
             </div>
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+                <div class="theme-toggle-slider">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </div>
+            </button>
         </div>
     </nav>
 
     <div class="container">
         <aside class="sidebar">
             <div class="sidebar-header">
+                <i class="fas fa-folder" style="color: var(--primary); font-size: 18px;"></i>
                 <h2>Documents</h2>
             </div>
             <ul class="file-list" id="fileList">
@@ -485,21 +547,26 @@
         <main class="main-content">
             <div class="card">
                 <div class="card-header">
-                    <div class="card-icon">📁</div>
+                    <div class="card-icon">
+                        <i class="fas fa-upload"></i>
+                    </div>
                     <h2>Upload Document</h2>
                 </div>
 
-                <div class="upload-zone" id="uploadZone">
+                <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
                     <div class="upload-content">
-                        <div class="upload-icon-large">☁️</div>
+                        <div class="upload-icon-large">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
                         <div class="upload-text">
                             <h3>Drag and drop your file here</h3>
-                            <p>or click to browse • PDF, DOCX, TXT, JSON • Max 16MB</p>
+                            <p>or click to browse • PDF, DOCX, TXT, JSON, MD • Max 16MB</p>
                         </div>
-                        <label for="fileInput" class="btn btn-primary">
+                        <label for="fileInput" class="btn btn-primary" onclick="event.stopPropagation()">
+                            <i class="fas fa-file-plus"></i>
                             Select File
                         </label>
-                        <input type="file" id="fileInput" accept=".txt,.pdf,.docx,.json">
+                        <input type="file" id="fileInput" accept=".txt,.pdf,.docx,.json,.md">
                     </div>
                 </div>
 
@@ -509,7 +576,9 @@
 
             <div class="card">
                 <div class="card-header">
-                    <div class="card-icon">💬</div>
+                    <div class="card-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
                     <h2>Query Documents</h2>
                 </div>
 
@@ -519,6 +588,7 @@
                 <div class="input-footer">
                     <span class="char-count" id="charCount">0 / 1000</span>
                     <button class="btn btn-primary" onclick="askQuestion()">
+                        <i class="fas fa-search"></i>
                         Search Documents
                     </button>
                 </div>
@@ -529,13 +599,18 @@
 
             <div class="card answer-container" id="answerContainer">
                 <div class="answer-header">
-                    <h3>Response</h3>
+                    <h3>
+                        <i class="fas fa-magic" style="margin-right: 0.5rem; color: var(--primary);"></i>
+                        Response
+                    </h3>
                     <button class="btn btn-secondary" onclick="copyAnswer()">
+                        <i class="fas fa-copy"></i>
                         Copy Answer
                     </button>
                 </div>
                 <div class="answer-text" id="answerText"></div>
                 <div class="sources-box">
+                    <i class="fas fa-link" style="color: var(--primary);"></i>
                     <strong>Sources:</strong>
                     <span class="sources-list" id="sourcesList"></span>
                 </div>
@@ -544,16 +619,33 @@
     </div>
 
     <script>
+        // Theme toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            const icon = document.getElementById('themeIcon');
+            icon.className = newTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        if (savedTheme === 'light') {
+            document.getElementById('themeIcon').className = 'fas fa-sun';
+        }
+
         const uploadedFiles = new Set();
         const queryInput = document.getElementById('queryInput');
         const charCount = document.getElementById('charCount');
 
-        // Character counter
         queryInput.addEventListener('input', () => {
             charCount.textContent = `${queryInput.value.length} / 1000`;
         });
 
-        // Drag and drop
         const uploadZone = document.getElementById('uploadZone');
         const fileInput = document.getElementById('fileInput');
 
@@ -688,12 +780,20 @@
             }
 
             const ext = fileName.split('.').pop().toLowerCase();
-            const icons = { pdf: '📕', docx: '📘', txt: '📄', json: '📋' };
+            const iconMap = {
+                pdf: 'fa-file-pdf',
+                docx: 'fa-file-word',
+                txt: 'fa-file-alt',
+                json: 'fa-file-code',
+                md: 'fa-file-alt'
+            };
 
             const li = document.createElement('li');
             li.className = 'file-item';
             li.innerHTML = `
-                <div class="file-icon">${icons[ext] || '📄'}</div>
+                <div class="file-icon">
+                    <i class="fas ${iconMap[ext] || 'fa-file'}" style="font-size: 18px;"></i>
+                </div>
                 <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${fileName}</span>
             `;
             fileList.appendChild(li);
@@ -702,14 +802,15 @@
         function copyAnswer() {
             const answerText = document.getElementById('answerText').textContent;
             navigator.clipboard.writeText(answerText).then(() => {
-                const btn = event.target;
-                const original = btn.textContent;
-                btn.textContent = 'Copied!';
-                setTimeout(() => btn.textContent = original, 2000);
+                const btn = event.target.closest('button');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i>Copied!';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                }, 2000);
             });
         }
 
-        // Keyboard shortcuts
         queryInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
                 askQuestion();

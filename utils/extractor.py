@@ -10,6 +10,11 @@ def extract_text(file_path, file_type):
         with open(file_path, "r", encoding="utf-8") as f:
             return f.read()
 
+    elif file_type == "md":
+        # Markdown files are just text files
+        with open(file_path, "r", encoding="utf-8") as f:
+            return f.read()
+
     elif file_type == "pdf":
         text = ""
         with open(file_path, "rb") as f:
