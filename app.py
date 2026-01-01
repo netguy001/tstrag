@@ -43,7 +43,7 @@ def upload_file():
     chunks = chunk_text(text)
     vector_db.add_chunks(chunks, filename)
 
-    os.remove(filepath)
+    # File is kept in uploads folder (os.remove line removed)
     return jsonify(
         {"message": f"File {filename} processed successfully", "chunks": len(chunks)}
     )
