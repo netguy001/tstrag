@@ -1,3 +1,7 @@
+import os
+
+os.environ["ANONYMIZED_TELEMETRY"] = "False"  # Disable ChromaDB telemetry
+
 import chromadb
 from sentence_transformers import SentenceTransformer
 from config import Config

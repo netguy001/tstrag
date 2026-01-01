@@ -1,7 +1,9 @@
 import os
 import shutil
 from dotenv import load_dotenv
+import os
 
+os.environ["ANONYMIZED_TELEMETRY"] = "False"
 load_dotenv()
 
 
