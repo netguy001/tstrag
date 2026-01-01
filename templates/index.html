@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <h1>RAG Document System</h1>
+
+        <div class="upload-section">
+            <h2>Upload Document</h2>
+            <input type="file" id="fileInput" accept=".txt,.pdf,.docx,.json">
+            <button onclick="uploadFile()">Upload</button>
+            <div id="uploadStatus" class="status"></div>
+            <div id="uploadProgress" class="progress-bar"></div>
+        </div>
+
+        <div class="query-section">
+            <h2>Ask Question</h2>
+            <textarea id="queryInput" placeholder="Enter your question..."></textarea>
+            <button onclick="askQuestion()">Ask</button>
+            <div id="queryStatus" class="status"></div>
+            <div id="queryProgress" class="progress-bar"></div>
+        </div>
+
+        <div id="answer" class="answer-box"></div>
+        <div id="sources" class="sources"></div>
+    </div>
+
+    <script>
+        async function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const status = document.getElementById('uploadStatus');
+            const progress = document.getElementById('uploadProgress');
+
+            if (!fileInput.files[0]) {
+                status.textContent = 'Please select a file';
+                status.className = 'status error';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            status.textContent = 'Extracting text...';
+            status.className = 'status loading';
+            progress.style.width = '33%';
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                status.textContent = 'Chunking text...';
+                progress.style.width = '66%';
+
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                const result = await response.json();
+
+                status.textContent = 'Storing in database...';
+                progress.style.width = '100%';
+
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                if (response.ok) {
+                    status.textContent = `✓ Success! ${result.chunks} chunks created`;
+                    status.className = 'status success';
+                    setTimeout(() => {
+                        progress.style.width = '0%';
+                    }, 1000);
+                } else {
+                    status.textContent = `✗ Error: ${result.error}`;
+                    status.className = 'status error';
+                    progress.style.width = '0%';
+                }
+            } catch (error) {
+                status.textContent = `✗ Error: ${error.message}`;
+                status.className = 'status error';
+                progress.style.width = '0%';
+            }
+        }
+
+        async function askQuestion() {
+            const query = document.getElementById('queryInput').value;
+            const status = document.getElementById('queryStatus');
+            const progress = document.getElementById('queryProgress');
+            const answerBox = document.getElementById('answer');
+            const sourcesBox = document.getElementById('sources');
+
+            if (!query.trim()) {
+                status.textContent = 'Please enter a question';
+                status.className = 'status error';
+                return;
+            }
+
+            status.textContent = 'Searching documents...';
+            status.className = 'status loading';
+            progress.style.width = '50%';
+            answerBox.textContent = '';
+            sourcesBox.textContent = '';
+
+            try {
+                const response = await fetch('/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: query })
+                });
+
+                status.textContent = 'AI processing...';
+                progress.style.width = '100%';
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    status.textContent = '✓ Answer generated';
+                    status.className = 'status success';
+                    answerBox.textContent = result.answer;
+                    answerBox.className = 'answer-box show';
+                    sourcesBox.textContent = 'Sources: ' + result.sources.join(', ');
+                    sourcesBox.className = 'sources show';
+                    setTimeout(() => {
+                        progress.style.width = '0%';
+                    }, 1000);
+                } else {
+                    status.textContent = `✗ Error: ${result.error}`;
+                    status.className = 'status error';
+                    progress.style.width = '0%';
+                }
+            } catch (error) {
+                status.textContent = `✗ Error: ${error.message}`;
+                status.className = 'status error';
+                progress.style.width = '0%';
+            }
+        }
+    </script>
+</body>
+
+</html>
